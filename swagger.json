@@ -1,0 +1,209 @@
+{
+   "swagger": "2.0",
+   "info": {
+      "description": "Spring Boot Swagger Example Api Creator",
+      "version": "1.0",
+      "title": "Spring Boot Swagger Example API",
+      "termsOfService": "Terms of Service",
+      "contact": {
+         "name": "yourname",
+         "url": "https://github.com/yourlink",
+         "email": "youremail@yourdomain.com"
+      },
+      "license": {
+         "name": "Apache License Version 2.0",
+         "url": "https://www.apache.org/licesen.html"
+      }
+   },
+   "host": "localhost:8080",
+   "basePath": "/",
+   "tags": [
+      {
+         "name": "person-resource",
+         "description": "Shows the user info"
+      },
+      {
+         "name": "hello-resource",
+         "description": "shows hello world"
+      }
+   ],
+   "paths": {
+      "/rest/hello": {
+         "get": {
+            "tags": [
+               "hello-resource"
+            ],
+            "summary": "Returns Hello World",
+            "operationId": "helloUsingGET",
+            "consumes": [
+               "application/json"
+            ],
+            "produces": [
+               "*/*"
+            ],
+            "responses": {
+               "100": {
+                  "description": "100 is the message"
+               },
+               "200": {
+                  "description": "Successful Hello World",
+                  "schema": {
+                     "type": "string"
+                  }
+               },
+               "401": {
+                  "description": "Unauthorized"
+               },
+               "403": {
+                  "description": "Forbidden"
+               },
+               "404": {
+                  "description": "Not Found"
+               }
+            }
+         }
+      },
+      "/rest/hello/post": {
+         "post": {
+            "tags": [
+               "hello-resource"
+            ],
+            "summary": "Returns Hello World",
+            "operationId": "helloPostUsingPOST",
+            "consumes": [
+               "application/json"
+            ],
+            "produces": [
+               "*/*"
+            ],
+            "parameters": [
+               {
+                  "in": "body",
+                  "name": "hello",
+                  "description": "hello",
+                  "required": true,
+                  "schema": {
+                     "type": "string"
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "schema": {
+                     "type": "string"
+                  }
+               },
+               "201": {
+                  "description": "Created"
+               },
+               "401": {
+                  "description": "Unauthorized"
+               },
+               "403": {
+                  "description": "Forbidden"
+               },
+               "404": {
+                  "description": "Not Found"
+               }
+            }
+         }
+      },
+      "/rest/person": {
+         "get": {
+            "tags": [
+               "person-resource"
+            ],
+            "summary": "getPersons",
+            "operationId": "getPersonsUsingGET",
+            "consumes": [
+               "application/json"
+            ],
+            "produces": [
+               "*/*"
+            ],
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "schema": {
+                     "type": "array",
+                     "items": {
+                        "$ref": "#/definitions/Person"
+                     }
+                  }
+               },
+               "401": {
+                  "description": "Unauthorized"
+               },
+               "403": {
+                  "description": "Forbidden"
+               },
+               "404": {
+                  "description": "Not Found"
+               }
+            }
+         }
+      },
+      "/rest/person/{userName}": {
+         "get": {
+            "tags": [
+               "person-resource"
+            ],
+            "summary": "getPerson",
+            "operationId": "getPersonUsingGET",
+            "consumes": [
+               "application/json"
+            ],
+            "produces": [
+               "*/*"
+            ],
+            "parameters": [
+               {
+                  "name": "userName",
+                  "in": "path",
+                  "description": "userName",
+                  "required": true,
+                  "type": "string"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "schema": {
+                     "$ref": "#/definitions/Person"
+                  }
+               },
+               "401": {
+                  "description": "Unauthorized"
+               },
+               "403": {
+                  "description": "Forbidden"
+               },
+               "404": {
+                  "description": "Not Found"
+               }
+            }
+         }
+      }
+   },
+   "definitions": {
+      "Person": {
+         "type": "object",
+         "properties": {
+            "name": {
+               "type": "string",
+               "description": "name"
+            },
+            "salary": {
+               "type": "integer",
+               "format": "int64",
+               "description": "salary"
+            },
+            "title": {
+               "type": "string",
+               "description": "title"
+            }
+         }
+      }
+   }
+}
