@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -19,11 +20,10 @@ public class Task {
     @Column(name = "task_id")
     private Integer id;
 
-    @Size(min = 4, max = 255, message = "Minimum name length: 4 characters")
+    @Size(min = 2, max = 255, message = "Minimum name length: 4 characters")
     @Column(nullable = false)
     private String description;
 
-    @Size(min = 4, max = 75, message = "Minimum name length: 4 characters")
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
@@ -37,4 +37,7 @@ public class Task {
     @ManyToOne
     @JoinColumn(name="project_id", nullable=false)
     private Project project;
+
+    @Temporal(TemporalType.DATE)
+    private Date due_date;
 }

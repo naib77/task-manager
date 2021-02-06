@@ -36,6 +36,7 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter{
         http.authorizeRequests()//
                 .antMatchers("api/users/signin").permitAll()//
                 .antMatchers("api/users/signup").permitAll()//
+                .antMatchers("/api/**/**").permitAll()//
                 .antMatchers("/h2-console/**/**").permitAll()
                 .antMatchers("/swagger-ui.html").permitAll()
                 // Disallow everything else..

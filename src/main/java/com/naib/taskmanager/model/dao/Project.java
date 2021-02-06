@@ -31,7 +31,4 @@ public class Project {
 
     @OneToMany(mappedBy="project")
     private Set<Task> tasks;
-
-    @Temporal(TemporalType.DATE)
-    private Date due_date;
 }

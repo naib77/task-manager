@@ -1,5 +1,6 @@
 package com.naib.taskmanager;
 
+import com.naib.taskmanager.dto.UserResponseDTO;
 import com.naib.taskmanager.model.Role;
 import com.naib.taskmanager.model.dao.User;
 import com.naib.taskmanager.service.UserService;
@@ -29,20 +30,33 @@ public class TaskmanagerApplication  implements CommandLineRunner {
 
 	@Override
 	public void run(String... params) throws Exception {
-		User admin = new User();
-		admin.setUsername("admin");
-		admin.setPassword("admin");
-		admin.setEmail("admin@email.com");
-		admin.setRoles(new ArrayList<>(Arrays.asList(Role.ADMIN)));
+		UserResponseDTO adminUser = null;
+		UserResponseDTO user = null;
+		try {
+			adminUser = this.modelMapper().map(userService.search("admin"), UserResponseDTO.class);
+			user = this.modelMapper().map(userService.search("user"), UserResponseDTO.class);
+		} catch (Exception e) {
+//			e.printStackTrace();
+		}
+		if (adminUser == null){
+			User admin = new User();
+			admin.setUsername("admin");
+			admin.setPassword("admin");
+			admin.setEmail("admin@email.com");
+			admin.setRoles(new ArrayList<>(Arrays.asList(Role.ADMIN)));
 
-		userService.signup(admin);
+			userService.signup(admin);
+		}
 
-		User client = new User();
-		client.setUsername("user");
-		client.setPassword("user");
-		client.setEmail("user@email.com");
-		client.setRoles(new ArrayList<>(Arrays.asList(Role.USER)));
+		if (user == null){
+			User client = new User();
+			client.setUsername("user");
+			client.setPassword("user");
+			client.setEmail("user@email.com");
+			client.setRoles(new ArrayList<>(Arrays.asList(Role.USER)));
 
-		userService.signup(client);
+			userService.signup(client);
+		}
+
 	}
 }
