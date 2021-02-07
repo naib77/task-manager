@@ -24,7 +24,7 @@ public class UserController {
     private ModelMapper modelMapper;
 
     @PostMapping("/signin")
-    @ApiOperation(value = "${UserController.signin}")
+    @ApiOperation(value = "Signin")
     @ApiResponses(value = {//
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 422, message = "Invalid username/password supplied")})
@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    @ApiOperation(value = "${UserController.signup}")
+    @ApiOperation(value = "signup")
     @ApiResponses(value = {//
             @ApiResponse(code = 400, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //

@@ -6,6 +6,7 @@ import com.naib.taskmanager.service.TaskService;
 import io.swagger.annotations.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,8 @@ public class TaskController {
 
 
     @PostMapping("/create")
-    @ApiOperation(value = "${UserController.signup}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @ApiOperation(value = "Create Task")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -34,7 +36,8 @@ public class TaskController {
     }
 
     @PutMapping("/edit")
-    @ApiOperation(value = "${UserController.signup}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @ApiOperation(value = "Edit Task")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -43,8 +46,11 @@ public class TaskController {
         TaskDataDTO createdTask = modelMapper.map(taskService.updateTask(taskDataDTO),TaskDataDTO.class);
         return createdTask;
     }
+
+    //TODO need to update user role wise
     @GetMapping("/{task_id}")
-    @ApiOperation(value = "${UserController.signup}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @ApiOperation(value = "Get Task")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -55,7 +61,8 @@ public class TaskController {
     }
 
     @GetMapping("/search/by-project/{project_id}")
-    @ApiOperation(value = "${UserController.signup}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @ApiOperation(value = "Get task by project_id")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -65,7 +72,8 @@ public class TaskController {
         return tasks;
     }
     @GetMapping("/search/by-status/{status}")
-    @ApiOperation(value = "${UserController.signup}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @ApiOperation(value = "Get task by status [open/in progress/closed]")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -75,7 +83,8 @@ public class TaskController {
         return tasks;
     }
     @GetMapping("/search/by-user/{user_id}")
-    @ApiOperation(value = "${UserController.signup}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ApiOperation(value = "Only ADMIN can search task by user_id")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
@@ -85,7 +94,8 @@ public class TaskController {
         return tasks;
     }
     @GetMapping("/search/expired-task")
-    @ApiOperation(value = "${UserController.signup}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @ApiOperation(value = "Get expired task")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),

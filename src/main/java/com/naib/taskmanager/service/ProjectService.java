@@ -1,6 +1,7 @@
 package com.naib.taskmanager.service;
 
 import com.naib.taskmanager.dto.ProjectDataDTO;
+import com.naib.taskmanager.dto.ProjectResponseDataDTO;
 import com.naib.taskmanager.model.Role;
 import com.naib.taskmanager.model.dao.Project;
 import com.naib.taskmanager.model.dao.Task;
@@ -41,7 +42,7 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-    public List<ProjectDataDTO> getAllProject(HttpServletRequest request) {
+    public List<ProjectResponseDataDTO> getAllProject(HttpServletRequest request) {
         List<Project> projects = null;
         if (request.isUserInRole(Role.ADMIN.name())) {
             projects = projectRepository.findAll();
@@ -51,9 +52,9 @@ public class ProjectService {
             projects = projectRepository.findByUser(loggedInUser);
         }
 
-        List<ProjectDataDTO> projectList = new ArrayList<>();
+        List<ProjectResponseDataDTO> projectList = new ArrayList<>();
         projects.forEach(project -> {
-            ProjectDataDTO projectDataDTO = new ProjectDataDTO();
+            ProjectResponseDataDTO projectDataDTO = new ProjectResponseDataDTO();
             projectDataDTO.setName(project.getName());
             Set<User> users = project.getUser();
             Set<Integer> userIdList = new HashSet<>();

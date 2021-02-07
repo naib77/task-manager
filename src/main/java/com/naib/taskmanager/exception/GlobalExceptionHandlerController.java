@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-@RestControllerAdvice
+//@RestControllerAdvice
 public class GlobalExceptionHandlerController {
 
     @Bean
