@@ -59,7 +59,7 @@ public class UserService {
         return user;
     }
 
-    public User whoami(HttpServletRequest req) {
+    public User loggedInUser(HttpServletRequest req) {
         return userRepository.findByUsername(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(req)));
     }
 

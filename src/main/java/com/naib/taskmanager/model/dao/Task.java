@@ -34,10 +34,11 @@ public class Task {
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> user;
 
-    @ManyToOne
-    @JoinColumn(name="project_id", nullable=false)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name="project_id", nullable=true)
     private Project project;
 
+    @Column(name = "due_date")
     @Temporal(TemporalType.DATE)
-    private Date due_date;
+    private Date taskDueDate;
 }

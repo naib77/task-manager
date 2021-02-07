@@ -24,4 +24,6 @@ public class TaskDataDTO {
     private Integer user_id;
     @ApiModelProperty(position = 4)
     private Date due_date;
+    @ApiModelProperty(position = 5)
+    private Integer id;
 }

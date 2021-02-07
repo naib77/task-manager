@@ -29,6 +29,7 @@ public class Project {
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> user;
 
-    @OneToMany(mappedBy="project")
-    private Set<Task> tasks;
+//    @OneToMany(mappedBy="project",
+//            cascade = CascadeType.ALL, orphanRemoval = true)
+//    private Set<Task> tasks;
 }
