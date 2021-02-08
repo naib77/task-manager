@@ -5,6 +5,8 @@ import com.naib.taskmanager.dto.ProjectResponseDataDTO;
 import com.naib.taskmanager.service.ProjectService;
 import io.swagger.annotations.*;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +25,7 @@ import java.util.Map;
 @RequestMapping("api/projects")
 @Api(tags = "project")
 public class ProjectController {
-
+    public static Logger LOG = LoggerFactory.getLogger(ProjectController.class);
     @Autowired
     private ModelMapper modelMapper;
 
@@ -39,7 +41,9 @@ public class ProjectController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "already in use")})
     public ProjectResponseDataDTO createProject(@Valid  @ApiParam("Create New Project") @RequestBody ProjectDataDTO project) throws Exception {
+        LOG.info("API call for creating project with {}",project.toString());
         ProjectResponseDataDTO createdProject = modelMapper.map(projectService.createProject(project), ProjectResponseDataDTO.class);
+        createdProject.setMessage("Successfully Project Created");
         return createdProject;
     }
 
@@ -75,26 +79,13 @@ public class ProjectController {
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 404, message = "The user doesn't exist"),
             @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
-    public String delete(@ApiParam("project_id") @PathVariable Integer project_id) {
+    public ProjectResponseDataDTO delete(@ApiParam("project_id") @PathVariable Integer project_id, HttpServletRequest request) {
         ProjectResponseDataDTO projectResponseDataDTO= new ProjectResponseDataDTO();
         try {
-            projectService.deleteByProjectId(project_id);
-            projectResponseDataDTO.setMessage("Project Successfully Deleted");
+            projectResponseDataDTO = projectService.deleteByProjectId(project_id, request);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "Successfully deleted";
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
+        return projectResponseDataDTO;
     }
 }

@@ -18,8 +18,8 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ProjectDataDTO {
-    @ApiModelProperty(position = 0, required = true)
+    @ApiModelProperty(position = 0, required = true, example = "Demo Project", notes = "*required")
     private String name;
-    @ApiModelProperty(position = 1)
+    @ApiModelProperty(position = 1, example = "1")
     private Integer user_id;
 }

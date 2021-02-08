@@ -19,4 +19,6 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
 
     List<Task> findAllByTaskDueDateBefore(Date date);
     List<Task> findAllByTaskDueDateBeforeAndUser(Date date, User user);
+
+    void deleteByIdAndUser(Integer id, User user);
 }

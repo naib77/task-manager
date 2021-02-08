@@ -1,11 +1,12 @@
 package com.naib.taskmanager.controller;
 
 import com.naib.taskmanager.dto.UserDataDTO;
-import com.naib.taskmanager.dto.UserResponseDTO;
 import com.naib.taskmanager.model.dao.User;
 import com.naib.taskmanager.service.UserService;
 import io.swagger.annotations.*;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("api/users")
 @Api(tags = "users")
 public class UserController {
-//
+    public static Logger LOG = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserService userService;
 
@@ -43,42 +44,6 @@ public class UserController {
     public String signup(@ApiParam("Signup User") @RequestBody UserDataDTO user) {
         return userService.signup(modelMapper.map(user, User.class));
     }
-
-   /* @DeleteMapping(value = "/{username}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @ApiOperation(value = "${UserController.delete}", authorizations = { @Authorization(value="apiKey") })
-    @ApiResponses(value = {//
-            @ApiResponse(code = 400, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "The user doesn't exist"), //
-            @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
-    public String delete(@ApiParam("Username") @PathVariable String username) {
-        userService.delete(username);
-        return username;
-    }
-
-    @GetMapping(value = "/{username}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @ApiOperation(value = "${UserController.search}", response = UserResponseDTO.class, authorizations = { @Authorization(value="apiKey") })
-    @ApiResponses(value = {//
-            @ApiResponse(code = 400, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "The user doesn't exist"), //
-            @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
-    public UserResponseDTO search(@ApiParam("Username") @PathVariable String username) {
-        return modelMapper.map(userService.search(username), UserResponseDTO.class);
-    }
-
-    @GetMapping(value = "/me")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-    @ApiOperation(value = "${UserController.me}", response = UserResponseDTO.class, authorizations = { @Authorization(value="apiKey") })
-    @ApiResponses(value = {//
-            @ApiResponse(code = 400, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 500, message = "Expired or invalid JWT token")})
-    public UserResponseDTO whoami(HttpServletRequest req) {
-        return modelMapper.map(userService.whoami(req), UserResponseDTO.class);
-    }*/
 
     @GetMapping("/refresh")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")

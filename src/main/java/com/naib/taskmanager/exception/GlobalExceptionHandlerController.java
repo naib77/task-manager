@@ -4,6 +4,7 @@ import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -45,6 +47,16 @@ public class GlobalExceptionHandlerController {
     @ExceptionHandler(AccessDeniedException.class)
     public void handleAccessDeniedException(HttpServletResponse res) throws IOException {
         res.sendError(HttpStatus.FORBIDDEN.value(), "Access denied");
+    }
+    @ExceptionHandler(SQLException.class)
+    public void handleSQLException(HttpServletResponse res, SQLException exception) throws IOException {
+        System.out.println(exception.getMessage());
+        res.sendError(HttpStatus.FORBIDDEN.value(), "Access denied");
+    }
+    @ExceptionHandler(DataAccessException.class)
+    public void handleDataAccessException(HttpServletResponse res, DataAccessException exception) throws IOException {
+        System.out.println(exception.getRootCause().getMessage());
+        res.sendError(HttpStatus.FORBIDDEN.value(), exception.getRootCause().getMessage());
     }
 
     @ExceptionHandler(Exception.class)

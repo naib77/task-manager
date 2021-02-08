@@ -1,9 +1,12 @@
 package com.naib.taskmanager.service;
 
+import com.naib.taskmanager.controller.UserController;
 import com.naib.taskmanager.exception.CustomException;
 import com.naib.taskmanager.model.dao.User;
 import com.naib.taskmanager.repository.UserRepository;
 import com.naib.taskmanager.security.JwtTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class UserService {
+    public static final Logger LOG = LoggerFactory.getLogger(UserService.class);
     @Autowired
     private UserRepository userRepository;
 
@@ -31,6 +35,7 @@ public class UserService {
     public String signin(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            LOG.info("User signed in with username {}",username);
             return jwtTokenProvider.createToken(username, userRepository.findByUsername(username).getRoles());
         } catch (AuthenticationException e) {
             throw new CustomException("Invalid username/password supplied", HttpStatus.UNPROCESSABLE_ENTITY);
