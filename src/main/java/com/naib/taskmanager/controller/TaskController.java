@@ -1,11 +1,13 @@
 package com.naib.taskmanager.controller;
 
-import com.naib.taskmanager.dto.ProjectDataDTO;
 import com.naib.taskmanager.dto.TaskDataDTO;
 import com.naib.taskmanager.dto.TaskResponseDataDTO;
+import com.naib.taskmanager.dto.TaskUpdateDataDTO;
 import com.naib.taskmanager.service.TaskService;
 import io.swagger.annotations.*;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,8 @@ import java.util.List;
 @RequestMapping("api/tasks")
 @Api(tags = "task")
 public class TaskController {
+    public static Logger LOG = LoggerFactory.getLogger(TaskController.class);
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -31,8 +35,8 @@ public class TaskController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public TaskDataDTO createTask(@ApiParam("Create New Task") @RequestBody TaskDataDTO taskDataDTO){
-        TaskDataDTO createdTask = modelMapper.map(taskService.createTask(taskDataDTO),TaskDataDTO.class);
+    public TaskDataDTO createTask(@ApiParam("Create New Task") @RequestBody TaskDataDTO taskDataDTO) {
+        TaskDataDTO createdTask = modelMapper.map(taskService.createTask(taskDataDTO), TaskDataDTO.class);
         return createdTask;
     }
 
@@ -43,9 +47,9 @@ public class TaskController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public TaskDataDTO updateTask(@ApiParam("Update New Task") @RequestBody TaskDataDTO taskDataDTO){
-        TaskDataDTO createdTask = modelMapper.map(taskService.updateTask(taskDataDTO),TaskDataDTO.class);
-        return createdTask;
+    public TaskResponseDataDTO updateTask(@ApiParam("Update New Task") @RequestBody TaskUpdateDataDTO taskDataDTO, HttpServletRequest request) {
+        TaskResponseDataDTO responseDataDTO = taskService.updateTask(taskDataDTO, request);
+        return responseDataDTO;
     }
 
     //TODO need to update user role wise
@@ -56,7 +60,7 @@ public class TaskController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public TaskResponseDataDTO getTaskById(@ApiParam("task_id") @PathVariable  Integer task_id,HttpServletRequest request){
+    public TaskResponseDataDTO getTaskById(@ApiParam("task_id") @PathVariable Integer task_id, HttpServletRequest request) {
         TaskResponseDataDTO createdTask = taskService.getTaskById(task_id, request);
         return createdTask;
     }
@@ -68,10 +72,11 @@ public class TaskController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public List<TaskDataDTO> getALlTaskByProjectId(@ApiParam("project_id") @PathVariable  Integer project_id, HttpServletRequest request){
-        List<TaskDataDTO> tasks = taskService.getAllTaskByProjectId(project_id, request);
+    public List<TaskResponseDataDTO> getALlTaskByProjectId(@ApiParam("project_id") @PathVariable Integer project_id, HttpServletRequest request) {
+        List<TaskResponseDataDTO> tasks = taskService.getAllTaskByProjectId(project_id, request);
         return tasks;
     }
+
     @GetMapping("/search/by-status/{status}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @ApiOperation(value = "Get task by status [open/in progress/closed]")
@@ -79,10 +84,11 @@ public class TaskController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public List<TaskDataDTO> getALlTaskByProjectId(@ApiParam("status") @PathVariable  String status, HttpServletRequest request){
-        List<TaskDataDTO> tasks = taskService.getAllTaskByStatus(status, request);
+    public List<TaskResponseDataDTO> getALlTaskByProjectId(@ApiParam("status") @PathVariable String status, HttpServletRequest request) {
+        List<TaskResponseDataDTO> tasks = taskService.getAllTaskByStatus(status, request);
         return tasks;
     }
+
     @GetMapping("/search/by-user/{user_id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ApiOperation(value = "Only ADMIN can search task by user_id")
@@ -90,10 +96,11 @@ public class TaskController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public List<TaskDataDTO> getALlTaskByUserId(@ApiParam("user_id") @PathVariable  Integer user_id){
-        List<TaskDataDTO> tasks = taskService.getAllTaskByUserId(user_id);
+    public List<TaskResponseDataDTO> getALlTaskByUserId(@ApiParam("user_id") @PathVariable Integer user_id) {
+        List<TaskResponseDataDTO> tasks = taskService.getAllTaskByUserId(user_id);
         return tasks;
     }
+
     @GetMapping("/search/expired-task")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @ApiOperation(value = "Get expired task")
@@ -101,9 +108,9 @@ public class TaskController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public List<TaskResponseDataDTO> getALlTaskByProjectId( HttpServletRequest request){
+    public List<TaskResponseDataDTO> getALlTaskByProjectId(HttpServletRequest request) {
         List<TaskResponseDataDTO> tasks = taskService.getAllExpiredTask(request);
-        if (tasks.size()==0){
+        if (tasks.size() == 0) {
             TaskResponseDataDTO taskResponseDataDTO = new TaskResponseDataDTO();
             taskResponseDataDTO.setMessage("No Expired Task Available");
             tasks.add(taskResponseDataDTO);

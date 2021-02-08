@@ -22,6 +22,10 @@ public class Task {
 
     @Size(min = 2, max = 255, message = "Minimum name length: 4 characters")
     @Column(nullable = false)
+    private String name;
+
+    @Size(min = 2, max = 255, message = "Minimum name length: 4 characters")
+    @Column(nullable = false)
     private String description;
 
     @Column(nullable = false)

@@ -1,7 +1,9 @@
 package com.naib.taskmanager.service;
 
+import com.naib.taskmanager.controller.TaskController;
 import com.naib.taskmanager.dto.TaskDataDTO;
 import com.naib.taskmanager.dto.TaskResponseDataDTO;
+import com.naib.taskmanager.dto.TaskUpdateDataDTO;
 import com.naib.taskmanager.model.Role;
 import com.naib.taskmanager.model.TaskStatus;
 import com.naib.taskmanager.model.dao.Project;
@@ -9,6 +11,8 @@ import com.naib.taskmanager.model.dao.Task;
 import com.naib.taskmanager.model.dao.User;
 import com.naib.taskmanager.repository.TaskRepository;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +21,7 @@ import java.util.*;
 
 @Service
 public class TaskService {
-
+    public static Logger LOG = LoggerFactory.getLogger(TaskService.class);
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -35,6 +39,7 @@ public class TaskService {
             project.setId(taskDataDTO.getProject_id());
             task.setProject(project);
         }
+        task.setName(taskDataDTO.getName());
         task.setTaskDueDate(taskDataDTO.getDue_date());
         TaskStatus status = TaskStatus.find(taskDataDTO.getStatus());
         task.setStatus(status);
@@ -48,30 +53,46 @@ public class TaskService {
 
     }
 
-    public Task updateTask(TaskDataDTO taskDataDTO) {
-        Task task = taskRepository.getOne(taskDataDTO.getId());
-        if (task.getStatus().getValue().equalsIgnoreCase(TaskStatus.CLOSED.getValue())) {
-            return task;
-        } else {
-            if (taskDataDTO.getDescription() != null) {
-                task.setDescription(taskDataDTO.getDescription());
-            }
-            if (taskDataDTO.getStatus() != null) {
-                task.setStatus(TaskStatus.find(taskDataDTO.getStatus()));
-            }
-            if (taskDataDTO.getDue_date() != null) {
-                task.setTaskDueDate(taskDataDTO.getDue_date());
-            }
-            taskRepository.save(task);
+    public TaskResponseDataDTO updateTask(TaskUpdateDataDTO taskDataDTO, HttpServletRequest request) {
+        User loggedInUser = null;
+        Task task = null;
+        TaskResponseDataDTO responseDataDTO = new TaskResponseDataDTO();
+        if (request.isUserInRole(Role.ADMIN.name())) {
+            loggedInUser = userService.loggedInUser(request);
+            task = taskRepository.getById(taskDataDTO.getId());
+        } else if (request.isUserInRole(Role.USER.name())) {
+            loggedInUser = userService.loggedInUser(request);
+            task = taskRepository.getByIdAndUser(taskDataDTO.getId(), loggedInUser);
         }
-        return task;
+         if (task != null){
+             if (task.getStatus().getValue().equalsIgnoreCase(TaskStatus.CLOSED.getValue())) {
+                 responseDataDTO.setMessage("This task is already closed !!");
+             } else {
+                 if (taskDataDTO.getDescription() != null) {
+                     task.setDescription(taskDataDTO.getDescription());
+                 }
+                 if (taskDataDTO.getStatus() != null) {
+                     task.setStatus(TaskStatus.find(taskDataDTO.getStatus()));
+                 }
+                 if (taskDataDTO.getDue_date() != null) {
+                     task.setTaskDueDate(taskDataDTO.getDue_date());
+                 }
+                 taskRepository.save(task);
+                 responseDataDTO.setMessage("Task Updated Successfully");
+                 LOG.info("Task with task_id: {} is updated by {}", taskDataDTO.getId(),loggedInUser.getUsername());
+             }
+         }else {
+             responseDataDTO.setMessage("Task is not found for this user");
+         }
+
+        return responseDataDTO;
     }
 
     public TaskResponseDataDTO getTaskById(Integer taskId, HttpServletRequest request) {
         Task task = null;
         TaskResponseDataDTO taskResponseDataDTO = new TaskResponseDataDTO();
         if (request.isUserInRole(Role.ADMIN.name())) {
-            task = taskRepository.getOne(taskId);
+            task = taskRepository.getById(taskId);
         } else if (request.isUserInRole(Role.USER.name())) {
             User loggedInUser = userService.loggedInUser(request);
             task = taskRepository.getByIdAndUser(taskId, loggedInUser);
@@ -84,20 +105,12 @@ public class TaskService {
         return taskResponseDataDTO;
     }
 
-    public List<TaskDataDTO> getAllTaskByUserId(Integer userId){
+    public List<TaskResponseDataDTO> getAllTaskByUserId(Integer userId){
         List<Task> taskList =taskRepository.findAllByUser_id(userId);
-        List<TaskDataDTO> taskDataDTOList = new ArrayList<>();
-        taskList.forEach(task -> {
-            TaskDataDTO taskDataDTO = new TaskDataDTO();
-            taskDataDTO.setDescription(task.getDescription());
-            taskDataDTO.setDue_date(task.getTaskDueDate());
-            taskDataDTO.setStatus(task.getStatus().getValue());
-            taskDataDTOList.add(taskDataDTO);
-        });
-        return taskDataDTOList;
+        return getTaskResponseDataDTOList(taskList);
     }
 
-    public List<TaskDataDTO> getAllTaskByProjectId(Integer projectId, HttpServletRequest request) {
+    public List<TaskResponseDataDTO> getAllTaskByProjectId(Integer projectId, HttpServletRequest request) {
         List<Task> taskList = null;
         if (request.isUserInRole(Role.ADMIN.name())) {
             taskList = taskRepository.findAllByProject_Id(projectId);
@@ -105,18 +118,10 @@ public class TaskService {
             User loggedInUser = userService.loggedInUser(request);
             taskList = taskRepository.findAllByProject_IdAndUser(projectId, loggedInUser);
         }
-        List<TaskDataDTO> taskDataDTOList = new ArrayList<>();
-        taskList.forEach(task -> {
-            TaskDataDTO taskDataDTO = new TaskDataDTO();
-            taskDataDTO.setDescription(task.getDescription());
-            taskDataDTO.setDue_date(task.getTaskDueDate());
-            taskDataDTO.setStatus(task.getStatus().getValue());
-            taskDataDTOList.add(taskDataDTO);
-        });
-        return taskDataDTOList;
+        return getTaskResponseDataDTOList(taskList);
     }
 
-    public List<TaskDataDTO> getAllTaskByStatus(String status, HttpServletRequest request) {
+    public List<TaskResponseDataDTO> getAllTaskByStatus(String status, HttpServletRequest request) {
         List<Task> taskList = null;
         TaskStatus taskStatus = TaskStatus.find(status);
         if (request.isUserInRole(Role.ADMIN.name())) {
@@ -125,15 +130,7 @@ public class TaskService {
             User loggedInUser = userService.loggedInUser(request);
             taskList = taskRepository.findAllByStatusAndUser(taskStatus, loggedInUser);
         }
-        List<TaskDataDTO> taskDataDTOList = new ArrayList<>();
-        taskList.forEach(task -> {
-            TaskDataDTO taskDataDTO = new TaskDataDTO();
-            taskDataDTO.setDescription(task.getDescription());
-            taskDataDTO.setDue_date(task.getTaskDueDate());
-            taskDataDTO.setStatus(task.getStatus().getValue());
-            taskDataDTOList.add(taskDataDTO);
-        });
-        return taskDataDTOList;
+        return getTaskResponseDataDTOList(taskList);
     }
     public List<TaskResponseDataDTO> getAllExpiredTask(HttpServletRequest request) {
         List<Task> taskList = null;

@@ -13,19 +13,13 @@ import java.util.Date;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class TaskDataDTO {
-    @ApiModelProperty(position = 0, required = true, example = "demo task")
-    private String name;
+public class TaskUpdateDataDTO {
     @ApiModelProperty(position = 1, required = true, example = "This task is for demo purpose")
     private String description;
     @ApiModelProperty(position = 2, required = true, example = "open")
     private String status;
-    @ApiModelProperty(position = 3, required = true)
-    private Integer project_id;
-    @ApiModelProperty(position = 4)
-    private Integer user_id;
     @ApiModelProperty(position = 5)
     private Date due_date;
-//    @ApiModelProperty(position = 6)
-//    private Integer id;
+    @ApiModelProperty(position = 6)
+    private Integer id;
 }
