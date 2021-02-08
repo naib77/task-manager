@@ -2,6 +2,7 @@ package com.naib.taskmanager.controller;
 
 import com.naib.taskmanager.dto.ProjectDataDTO;
 import com.naib.taskmanager.dto.TaskDataDTO;
+import com.naib.taskmanager.dto.TaskResponseDataDTO;
 import com.naib.taskmanager.service.TaskService;
 import io.swagger.annotations.*;
 import org.modelmapper.ModelMapper;
@@ -55,8 +56,8 @@ public class TaskController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public TaskDataDTO getTaskById(@ApiParam("task_id") @PathVariable  Integer task_id){
-        TaskDataDTO createdTask = modelMapper.map(taskService.getTaskById(task_id),TaskDataDTO.class);
+    public TaskResponseDataDTO getTaskById(@ApiParam("task_id") @PathVariable  Integer task_id,HttpServletRequest request){
+        TaskResponseDataDTO createdTask = taskService.getTaskById(task_id, request);
         return createdTask;
     }
 
@@ -100,8 +101,13 @@ public class TaskController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 403, message = "Access denied"),
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public List<TaskDataDTO> getALlTaskByProjectId( HttpServletRequest request){
-        List<TaskDataDTO> tasks = taskService.getAllExpiredTask(request);
+    public List<TaskResponseDataDTO> getALlTaskByProjectId( HttpServletRequest request){
+        List<TaskResponseDataDTO> tasks = taskService.getAllExpiredTask(request);
+        if (tasks.size()==0){
+            TaskResponseDataDTO taskResponseDataDTO = new TaskResponseDataDTO();
+            taskResponseDataDTO.setMessage("No Expired Task Available");
+            tasks.add(taskResponseDataDTO);
+        }
         return tasks;
     }
 }

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Integer> {
+    Task getByIdAndUser(Integer id, User user);
     List<Task> findAllByProject_Id(Integer project_id);
     List<Task> findAllByUser_id(Integer user_id);
     List<Task> findAllByProject_IdAndUser(Integer project_id, User user);

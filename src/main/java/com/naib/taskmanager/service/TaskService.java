@@ -1,12 +1,14 @@
 package com.naib.taskmanager.service;
 
 import com.naib.taskmanager.dto.TaskDataDTO;
+import com.naib.taskmanager.dto.TaskResponseDataDTO;
 import com.naib.taskmanager.model.Role;
 import com.naib.taskmanager.model.TaskStatus;
 import com.naib.taskmanager.model.dao.Project;
 import com.naib.taskmanager.model.dao.Task;
 import com.naib.taskmanager.model.dao.User;
 import com.naib.taskmanager.repository.TaskRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ import java.util.*;
 @Service
 public class TaskService {
 
+    @Autowired
+    private ModelMapper modelMapper;
     @Autowired
     UserService userService;
 
@@ -63,9 +67,21 @@ public class TaskService {
         return task;
     }
 
-    public Task getTaskById(Integer taskId) {
-        Task task = taskRepository.getOne(taskId);
-        return task;
+    public TaskResponseDataDTO getTaskById(Integer taskId, HttpServletRequest request) {
+        Task task = null;
+        TaskResponseDataDTO taskResponseDataDTO = new TaskResponseDataDTO();
+        if (request.isUserInRole(Role.ADMIN.name())) {
+            task = taskRepository.getOne(taskId);
+        } else if (request.isUserInRole(Role.USER.name())) {
+            User loggedInUser = userService.loggedInUser(request);
+            task = taskRepository.getByIdAndUser(taskId, loggedInUser);
+        }
+        if (task == null){
+            taskResponseDataDTO.setMessage("No task available!");
+        }else {
+            taskResponseDataDTO = modelMapper.map(task, TaskResponseDataDTO.class);
+        }
+        return taskResponseDataDTO;
     }
 
     public List<TaskDataDTO> getAllTaskByUserId(Integer userId){
@@ -119,7 +135,7 @@ public class TaskService {
         });
         return taskDataDTOList;
     }
-    public List<TaskDataDTO> getAllExpiredTask(HttpServletRequest request) {
+    public List<TaskResponseDataDTO> getAllExpiredTask(HttpServletRequest request) {
         List<Task> taskList = null;
         if (request.isUserInRole(Role.ADMIN.name())) {
             taskList = taskRepository.findAllByTaskDueDateBefore(new Date());
@@ -127,15 +143,21 @@ public class TaskService {
             User loggedInUser = userService.loggedInUser(request);
             taskList = taskRepository.findAllByTaskDueDateBeforeAndUser(new Date(), loggedInUser);
         }
-        List<TaskDataDTO> taskDataDTOList = new ArrayList<>();
-        taskList.forEach(task -> {
-            TaskDataDTO taskDataDTO = new TaskDataDTO();
-            taskDataDTO.setDescription(task.getDescription());
-            taskDataDTO.setDue_date(task.getTaskDueDate());
-            taskDataDTO.setStatus(task.getStatus().getValue());
-            taskDataDTOList.add(taskDataDTO);
-        });
-        return taskDataDTOList;
+        return getTaskResponseDataDTOList(taskList);
+    }
+
+    private List<TaskResponseDataDTO> getTaskResponseDataDTOList(List<Task> taskList){
+        List<TaskResponseDataDTO> taskResponseDataDTOList = new ArrayList<>();
+        if (taskList.size()>0){
+            taskList.forEach(task -> {
+                TaskResponseDataDTO taskDataDTO = new TaskResponseDataDTO();
+                taskDataDTO.setDescription(task.getDescription());
+                taskDataDTO.setDue_date(task.getTaskDueDate());
+                taskDataDTO.setStatus(task.getStatus().getValue());
+                taskResponseDataDTOList.add(taskDataDTO);
+            });
+        }
+        return taskResponseDataDTOList;
     }
 
 }
