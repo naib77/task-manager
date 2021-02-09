@@ -10,8 +10,8 @@ REST interface is covered by Swagger implementation.
 - Spring Boot
 - MySQL  
 - Logback 
-  - SLF4J   
-- Docker 
+  - SLF4J  
+- JWT Token 
 ##
 ### Get started 
 Clone from git and go to **application.properties** change DB username and password
@@ -29,5 +29,18 @@ java -jar target/taskmanager-0.0.1-SNAPSHOT.jar
 ```
 ### Swagger Url
 http://localhost:8080/swagger-ui/index.html
+<br><br>This is a sample JWT authentication service. Once you have successfully logged in and obtained the token, 
+you should click on the right top button Authorize and introduce it with the prefix "Bearer ".
+<br>Ex. Bearer <space> < {token} > 
+#### Default User
+```
+Two default user will be created on application start up
+```
+| User Name                              |  Password                                              |
+|----------------------------------------|:-------------------------------------------------------|
+| admin                                  |  admin                                                 |
+| user                                   |  user                                                  |
 
+
+<br><br>
 ![Alt text](./swagger-loal.png?raw=true "Title")
