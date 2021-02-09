@@ -14,19 +14,41 @@ REST interface is covered by Swagger implementation.
 - JWT Token 
 ##
 ### Get started 
-Clone from git and go to **application.properties** change DB username and password
+Clone from git and go to **application.properties** change DB username in DB_USER and password in DB_PASSWORD
+with your local mysql db username and password
 ```
 git clone git@github.com:naib77/task-manager.git
 cd task-manager
 sudo nano src/main/resources/application.properties
-spring.datasource.username=<DB_USER_NAME>
-spring.datasource.password=<DB_PASSWORD>
+DB_HOST=localhost
+DB_NAME=task_manager
+DB_USER=root // change here
+DB_PASSWORD=root // change here
 ```
 ### Build & Run with Java
 ```
 mvn clean install
 java -jar target/taskmanager-0.0.1-SNAPSHOT.jar 
 ```
+
+### Build & Run with Docker
+Open **Dockerfile** and change DB username in DB_USER and password in DB_PASSWORD 
+ with your local mysql db username and password
+```
+cd task-manager
+sudo nano Dockerfile
+
+ENV DB_HOST=localhost
+ENV DB_NAME=hdip
+ENV DB_USER=root // change here
+ENV DB_PASSWORD=root // change here
+
+// Docker build command
+docker build -t taskmanager:latest .
+// docker run command
+docker run --network="host" -p 8080:8080 taskmanager:latest 
+```
+
 ### Swagger Url
 http://localhost:8080/swagger-ui/index.html
 <br><br>This is a sample JWT authentication service. Once you have successfully logged in and obtained the token, 
